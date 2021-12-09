@@ -100,9 +100,9 @@ class SimPeripheral(Elaboratable):
 
     def __init__(self, name, pins):
         self.name = name
-        self.pins = pins
         self.io = {}
-        for pin, w in pins:
+        self.pins = [(p.replace(">", ""), w) for p, w in pins]
+        for pin, w in self.pins:
             for i in range(w):
                 bit_name = f"{pin}{i}" if w > 1 else pin
                 self.io[f"{bit_name}_i"] = Signal()
@@ -112,9 +112,10 @@ class SimPeripheral(Elaboratable):
             SimPeripheral.verilog_boxes[self.name] = f"(* blackbox, cxxrtl_blackbox, keep *) module {name} (\n"
             verilog_pins = []
             for pin, w in pins:
-                bb_pin = "periph" if len(pin) == 0 else pin
+                bb_pin = "periph" if len(pin) == 0 else pin.replace(">", "")
                 verilog_pins.append(f"    output [{w-1}:0] {bb_pin}_i")
-                verilog_pins.append(f"    input  [{w-1}:0] {bb_pin}_o")
+                edge = '(* cxxrtl_edge="a" *)' if '>' in pin else ''
+                verilog_pins.append(f"{edge}    input  [{w-1}:0] {bb_pin}_o")
                 verilog_pins.append(f"    input  [{w-1}:0] {bb_pin}_oeb")
             SimPeripheral.verilog_boxes[self.name] += ",\n".join(verilog_pins)
             SimPeripheral.verilog_boxes[self.name] += "\n);\n"
@@ -161,11 +162,11 @@ class SimSoc(Elaboratable):
         SimPeripheral.reset_boxes()
 
         # SPI flash
-        spiflash = SimPeripheral("spiflash_model", [("clk", 1), ("csn", 1), ("d", 4)])
+        spiflash = SimPeripheral("spiflash_model", [(">clk", 1), (">csn", 1), ("d", 4)])
         m.submodules.spiflash = spiflash
 
         # HyperRAM
-        hyperram = SimPeripheral("hyperram_model", [("clk", 1), ("rwds", 1), ("csn", 1), ("d", 8)])
+        hyperram = SimPeripheral("hyperram_model", [(">clk", 1), (">rwds", 1), (">csn", 1), ("d", 8)])
         m.submodules.hyperram = hyperram
 
         # GPIO
