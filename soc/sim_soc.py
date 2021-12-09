@@ -109,7 +109,7 @@ class SimPeripheral(Elaboratable):
                 self.io[f"{bit_name}_o"] = Signal()
                 self.io[f"{bit_name}_oeb"] = Signal()
         if name not in SimPeripheral.verilog_boxes:
-            SimPeripheral.verilog_boxes[self.name] = f"(* blackbox, keep *) module {name} (\n"
+            SimPeripheral.verilog_boxes[self.name] = f"(* blackbox, cxxrtl_blackbox, keep *) module {name} (\n"
             verilog_pins = []
             for pin, w in pins:
                 bb_pin = "periph" if len(pin) == 0 else pin
@@ -118,6 +118,7 @@ class SimPeripheral(Elaboratable):
                 verilog_pins.append(f"    input  [{w-1}:0] {bb_pin}_oeb")
             SimPeripheral.verilog_boxes[self.name] += ",\n".join(verilog_pins)
             SimPeripheral.verilog_boxes[self.name] += "\n);\n"
+            SimPeripheral.verilog_boxes[self.name] += "endmodule\n"
 
     def elaborate(self, platform):
         m = Module()
