@@ -1,0 +1,14 @@
+config ARCH_RISCV
+	bool
+
+if ARCH_RISCV
+
+config RISCV_TRIPLE
+	string #"Toolchain triple" FIXME
+	default "riscv64-unknown-elf"
+
+config RISCV_MULDIV_SOFT
+	bool "Emulate support for integer multiplication and division"
+	default y
+
+endif # if ARCH_RISCV

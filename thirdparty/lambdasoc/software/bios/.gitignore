@@ -1,0 +1,7 @@
+.config
+.config.old
+build/
+*.o
+*.d
+*.elf
+*.bin

@@ -1,0 +1,7 @@
+menu "Timer"
+
+config TIMER_CTR_WIDTH
+	int "Counter width (in bits)"
+	range 0 32
+
+endmenu

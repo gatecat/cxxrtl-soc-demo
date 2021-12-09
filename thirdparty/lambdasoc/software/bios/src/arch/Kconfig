@@ -1,0 +1,22 @@
+menu "CPU"
+
+choice
+	prompt "CPU"
+	default CPU_MINERVA
+
+config CPU_MINERVA
+	bool "Minerva"
+	select ARCH_RISCV
+
+endchoice
+
+config CPU_BYTEORDER
+	string
+	default "little" if CPU_MINERVA
+
+config CPU_RESET_ADDR
+	hex "Reset vector address"
+
+source src/arch/riscv/Kconfig
+
+endmenu

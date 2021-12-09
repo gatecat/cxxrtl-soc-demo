@@ -1,0 +1,15 @@
+menu "UART"
+
+config UART_RX_RINGBUF_SIZE_LOG2
+	int "UART RX ring buffer size (as log2)"
+	default 7
+	help
+	  Actual RX ring buffer size is 2**CONFIG_RX_RINGBUF_SIZE_LOG2.
+
+config UART_TX_RINGBUF_SIZE_LOG2
+	int "UART TX ring buffer size (as log2)"
+	default 7
+	help
+	  Actual TX ring buffer size is 2**CONFIG_TX_RINGBUF_SIZE_LOG2.
+
+endmenu

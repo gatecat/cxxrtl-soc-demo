@@ -1,0 +1,50 @@
+mainmenu "LambdaSoC BIOS Configuration"
+
+source src/arch/Kconfig
+
+source src/drivers/Kconfig
+
+menu "Memory configuration"
+
+config ROM_START
+	hex "ROM start address"
+
+config ROM_SIZE
+	hex "ROM size"
+
+config RAM_START
+	hex "RAM start address"
+
+config RAM_SIZE
+	hex "RAM size"
+
+config UART_START
+	hex "UART start address"
+
+config TIMER_START
+	hex "Timer start address"
+
+if WITH_SDRAM
+
+config SDRAM_START
+	hex "SDRAM start address"
+
+config SDRAM_SIZE
+	hex "SDRAM size"
+
+endif # WITH_SDRAM
+
+endmenu
+
+menu "Interrupt configuration"
+
+config UART_IRQNO
+	int "UART IRQ number"
+
+config TIMER_IRQNO
+	int "Timer IRQ number"
+
+endmenu
+
+config CLOCK_FREQ
+	int "System clock frequency (in Hz)"
