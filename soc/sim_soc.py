@@ -1,4 +1,4 @@
-import argparse
+import os, argparse
 import importlib
 
 from nmigen import *
@@ -196,6 +196,6 @@ class SimSoc(Elaboratable):
         return m
 
 if __name__ == "__main__":
-    sim_top = SimSoc()
+    sim_top = SimSoc(with_bios=int(os.environ.get("BUILD_BIOS", "0")) != 0)
     from nmigen.cli import main
     main(sim_top, name="sim_top", ports=[sim_top.clk, sim_top.rst, sim_top.uart_tx])

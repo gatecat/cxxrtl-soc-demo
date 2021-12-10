@@ -10,7 +10,7 @@ cores_py=$(wildcard cores/*.py)
 
 build/sim_soc.il: soc/sim_soc.py $(cores_py)
 	mkdir -p build
-	python -m soc.sim_soc generate $@
+	BUILD_BIOS=1 python -m soc.sim_soc generate $@
 
 build/sim_blackboxes.v: build/sim_soc.il
 
