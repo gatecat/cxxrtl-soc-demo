@@ -91,14 +91,30 @@ class UARTPins():
         self.rx = UARTPins.Input(rx)
         self.tx = UARTPins.Output(tx)
 
+class SimMonitor(Elaboratable):
+    def __init__(self, name, bus, verilog_boxes):
+        self.name = name
+        self.pins = []
+        for field, width, _ in bus.layout:
+            self.pins.append((field, width, getattr(bus, field)))
+        if name not in verilog_boxes:
+            verilog_boxes[self.name] = f"(* blackbox, cxxrtl_blackbox, keep *) module {name} (\n"
+            verilog_pins = ['(* cxxrtl_edge="a" *) input clk']
+            for field, width, _  in self.pins:
+                verilog_pins.append(f'input [{width-1}:0] {field}')
+            verilog_boxes[self.name] += ",\n".join(verilog_pins)
+            verilog_boxes[self.name] += "\n);\n"
+            verilog_boxes[self.name] += "endmodule\n"
+    def elaborate(self, platform):
+        m = Module()
+        conn = dict(i_clk=ClockSignal(), a_keep=True)
+        for field, width, subsig in self.pins:
+            conn[f'i_{field}'] = subsig
+        m.submodules.bb = Instance(self.name, **conn)
+        return m
+
 class SimPeripheral(Elaboratable):
-
-    verilog_boxes = dict()
-
-    def reset_boxes():
-        verilog_boxes = dict()
-
-    def __init__(self, name, pins):
+    def __init__(self, name, pins, verilog_boxes):
         self.name = name
         self.io = {}
         self.pins = [(p.replace(">", ""), w) for p, w in pins]
@@ -108,8 +124,8 @@ class SimPeripheral(Elaboratable):
                 self.io[f"{bit_name}_i"] = Signal()
                 self.io[f"{bit_name}_o"] = Signal()
                 self.io[f"{bit_name}_oeb"] = Signal()
-        if name not in SimPeripheral.verilog_boxes:
-            SimPeripheral.verilog_boxes[self.name] = f"(* blackbox, cxxrtl_blackbox, keep *) module {name} (\n"
+        if name not in verilog_boxes:
+            verilog_boxes[self.name] = f"(* blackbox, cxxrtl_blackbox, keep *) module {name} (\n"
             verilog_pins = []
             for pin, w in pins:
                 bb_pin = "periph" if len(pin) == 0 else pin.replace(">", "")
@@ -117,9 +133,9 @@ class SimPeripheral(Elaboratable):
                 edge = '(* cxxrtl_edge="a" *)' if '>' in pin else ''
                 verilog_pins.append(f"{edge}    input  [{w-1}:0] {bb_pin}_o")
                 verilog_pins.append(f"    input  [{w-1}:0] {bb_pin}_oeb")
-            SimPeripheral.verilog_boxes[self.name] += ",\n".join(verilog_pins)
-            SimPeripheral.verilog_boxes[self.name] += "\n);\n"
-            SimPeripheral.verilog_boxes[self.name] += "endmodule\n"
+            verilog_boxes[self.name] += ",\n".join(verilog_pins)
+            verilog_boxes[self.name] += "\n);\n"
+            verilog_boxes[self.name] += "endmodule\n"
 
     def elaborate(self, platform):
         m = Module()
@@ -140,9 +156,9 @@ class SimPeripheral(Elaboratable):
         m.submodules.bb = Instance(self.name, **conn)
         return m
 
-    def write_boxes(f):
-        for _, box in sorted(SimPeripheral.verilog_boxes.items(), key=lambda x: x[0]):
-            print(box, file=f)
+def write_boxes(f, verilog_boxes):
+    for _, box in sorted(verilog_boxes.items(), key=lambda x: x[0]):
+        print(box, file=f)
 
 # SoC top
 class SimSoc(Elaboratable):
@@ -159,22 +175,22 @@ class SimSoc(Elaboratable):
         m.d.comb += ClockSignal().eq(self.clk)
         m.d.comb += ResetSignal().eq(self.rst)
 
-        SimPeripheral.reset_boxes()
+        verilog_boxes = {}
 
         # SPI flash
-        spiflash = SimPeripheral("spiflash_model", [(">clk", 1), (">csn", 1), ("d", 4)])
+        spiflash = SimPeripheral("spiflash_model", [(">clk", 1), (">csn", 1), ("d", 4)], verilog_boxes)
         m.submodules.spiflash = spiflash
 
         # HyperRAM
-        hyperram = SimPeripheral("hyperram_model", [(">clk", 1), (">rwds", 1), (">csn", 1), ("d", 8)])
+        hyperram = SimPeripheral("hyperram_model", [(">clk", 1), (">rwds", 1), (">csn", 1), ("d", 8)], verilog_boxes)
         m.submodules.hyperram = hyperram
 
         # GPIO
-        gpio = SimPeripheral("gpio_model", [("", 8), ])
+        gpio = SimPeripheral("gpio_model", [("", 8), ], verilog_boxes)
         m.submodules.gpio = gpio
 
         # UART
-        uart = SimPeripheral("uart_model", [("tx", 1), ("rx", 1)])
+        uart = SimPeripheral("uart_model", [("tx", 1), ("rx", 1)], verilog_boxes)
         m.submodules.uart = uart
         uart_pins = UARTPins(rx=uart.io["rx_i"], tx=uart.io["tx_o"])
         m.d.comb += self.uart_tx.eq(uart.io["tx_o"])
@@ -189,10 +205,14 @@ class SimSoc(Elaboratable):
             timer_addr=0x10006000, timer_width=32,
             gpio_addr=0x10008000, gpio_count=8, gpio_pins=gpio.io,
         )
+
+        bus_mon = SimMonitor("wb_mon", m.submodules.soc._arbiter.bus, verilog_boxes)
+        m.submodules.bus_mon = bus_mon
+
         if self.with_bios:
             m.submodules.soc.build(build_dir=f"{self.build_dir}/soc", do_init=True)
         with open(f"{self.build_dir}/sim_blackboxes.v", "w") as f:
-            SimPeripheral.write_boxes(f)
+            write_boxes(f, verilog_boxes)
         return m
 
 if __name__ == "__main__":
