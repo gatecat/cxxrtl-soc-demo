@@ -1,7 +1,7 @@
 import unittest
 
-from nmigen import *
-from nmigen.back.pysim import *
+from amaranth import *
+from amaranth.back.pysim import *
 
 from ..units.divider import *
 from ..isa import Funct3

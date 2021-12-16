@@ -1,8 +1,8 @@
 import os, argparse
 import importlib
 
-from nmigen import *
-from thirdparty.nmigen_soc import wishbone
+from amaranth import *
+from thirdparty.amaranth_soc import wishbone
 
 from thirdparty.lambdasoc.cpu.minerva import MinervaCPU
 from thirdparty.lambdasoc.periph.intc import GenericInterruptController
@@ -197,5 +197,5 @@ class SimSoc(Elaboratable):
 
 if __name__ == "__main__":
     sim_top = SimSoc(with_bios=int(os.environ.get("BUILD_BIOS", "0")) != 0)
-    from nmigen.cli import main
+    from amaranth.cli import main
     main(sim_top, name="sim_top", ports=[sim_top.clk, sim_top.rst, sim_top.uart_tx])

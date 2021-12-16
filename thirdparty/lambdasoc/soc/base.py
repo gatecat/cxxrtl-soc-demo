@@ -3,9 +3,9 @@ import re
 import textwrap
 import jinja2
 
-from nmigen import tracer
-from thirdparty.nmigen_soc.memory import MemoryMap
-from nmigen.build.run import *
+from amaranth import tracer
+from thirdparty.amaranth_soc.memory import MemoryMap
+from amaranth.build.run import *
 
 from .. import software
 from ..periph import Peripheral

@@ -5,13 +5,13 @@ import os
 import re
 import textwrap
 
-from nmigen import *
-from nmigen import tracer
-from nmigen.build.run import BuildPlan, BuildProducts
-from nmigen.utils import log2_int
+from amaranth import *
+from amaranth import tracer
+from amaranth.build.run import BuildPlan, BuildProducts
+from amaranth.utils import log2_int
 
-from thirdparty.nmigen_soc import wishbone
-from thirdparty.nmigen_soc.memory import MemoryMap
+from thirdparty.amaranth_soc import wishbone
+from thirdparty.amaranth_soc.memory import MemoryMap
 
 
 __all__ = [
@@ -156,7 +156,7 @@ class Config(metaclass=ABCMeta):
 
         Arguments
         ---------
-        platform : :class:`nmigen.build.Platform`
+        platform : :class:`amaranth.build.Platform`
             Target platform.
         name : str
             DRAM resource name.
@@ -341,7 +341,7 @@ class NativePort(Record):
 
         Return value
         ------------
-        An instance of :class:`nmigen_soc.memory.MemoryMap`.
+        An instance of :class:`amaranth_soc.memory.MemoryMap`.
 
         Exceptions
         ----------
@@ -378,8 +378,8 @@ class Core(Elaboratable):
     ----------
     config : :class:`Config`
         LiteDRAM configuration.
-    pins : :class:`nmigen.lib.io.Pin`
-        Optional. DRAM pins. See :class:`nmigen_boards.resources.DDR3Resource` for layout.
+    pins : :class:`amaranth.lib.io.Pin`
+        Optional. DRAM pins. See :class:`amaranth_boards.resources.DDR3Resource` for layout.
     name : str
         Optional. Name of the LiteDRAM core. If ``None`` (default) the name is inferred from the
         name of the variable this instance is assigned to.
@@ -447,7 +447,7 @@ class Core(Elaboratable):
 
         Return value
         ------------
-        An instance of :class:`nmigen_soc.wishbone.Interface`.
+        An instance of :class:`amaranth_soc.wishbone.Interface`.
 
         Exceptions
         ----------
@@ -508,8 +508,8 @@ class Core(Elaboratable):
 
         Return value
         ------------
-        An instance of :class:`nmigen.build.run.LocalBuildProducts` if ``do_build`` is ``True``.
-        Otherwise, an instance of :class:``nmigen.build.run.BuildPlan``.
+        An instance of :class:`amaranth.build.run.LocalBuildProducts` if ``do_build`` is ``True``.
+        Otherwise, an instance of :class:``amaranth.build.run.BuildPlan``.
         """
         if not isinstance(builder, Builder):
             raise TypeError("Builder must be an instance of litedram.Builder, not {!r}"
@@ -720,7 +720,7 @@ class Builder:
 
         Return value
         ------------
-        A :class:`nmigen.build.run.BuildPlan` for this LiteDRAM instance.
+        A :class:`amaranth.build.run.BuildPlan` for this LiteDRAM instance.
 
         Exceptions
         ----------

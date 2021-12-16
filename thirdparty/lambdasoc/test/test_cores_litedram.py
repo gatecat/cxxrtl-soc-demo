@@ -1,8 +1,8 @@
-# nmigen: UnusedElaboratable=no
+# amaranth: UnusedElaboratable=no
 
 import unittest
 
-from nmigen_soc.memory import MemoryMap
+from amaranth_soc.memory import MemoryMap
 
 from litedram.modules import SDRAMModule
 

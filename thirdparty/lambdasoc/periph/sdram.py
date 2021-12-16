@@ -1,9 +1,9 @@
-from nmigen import *
-from nmigen.asserts import *
-from nmigen.utils import log2_int
+from amaranth import *
+from amaranth.asserts import *
+from amaranth.utils import log2_int
 
-from thirdparty.nmigen_soc import wishbone
-from thirdparty.nmigen_soc.memory import MemoryMap
+from thirdparty.amaranth_soc import wishbone
+from thirdparty.amaranth_soc.memory import MemoryMap
 
 from . import Peripheral
 
@@ -33,7 +33,7 @@ class WritebackCache(Elaboratable):
 
     Attributes
     ----------
-    intr_bus : :class:`nmigen_soc.wishbone.Interface`
+    intr_bus : :class:`amaranth_soc.wishbone.Interface`
         Initiator bus, with support for incremental bursts.
     """
     def __init__(self, dram_port, *, size, data_width, granularity=None, dirty_init=False):

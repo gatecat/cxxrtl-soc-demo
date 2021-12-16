@@ -3,13 +3,13 @@
 #
 # Copyright (c) 2019 Antti Lukats <antti.lukats@gmail.com>
 # Copyright (c) 2019 Florent Kermarrec <florent@enjoy-digital.fr>
-# Copyright (c) 2021 gatecat <gatecat@ds0.me> [nmigen-soc port]
+# Copyright (c) 2021 gatecat <gatecat@ds0.me> [amaranth-soc port]
 # SPDX-License-Identifier: BSD-2-Clause
 
-from nmigen import *
+from amaranth import *
 
-from thirdparty.nmigen_soc import wishbone
-from thirdparty.nmigen_soc.memory import MemoryMap
+from thirdparty.amaranth_soc import wishbone
+from thirdparty.amaranth_soc.memory import MemoryMap
 from thirdparty.lambdasoc.periph import Peripheral
 
 # for Migen compat

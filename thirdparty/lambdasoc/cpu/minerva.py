@@ -1,5 +1,5 @@
-from nmigen import *
-from thirdparty.nmigen_soc import wishbone
+from amaranth import *
+from thirdparty.amaranth_soc import wishbone
 
 from thirdparty.minerva.core import Minerva
 

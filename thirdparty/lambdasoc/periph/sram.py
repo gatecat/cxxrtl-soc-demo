@@ -1,8 +1,8 @@
-from nmigen import *
-from nmigen.utils import log2_int
+from amaranth import *
+from amaranth.utils import log2_int
 
-from thirdparty.nmigen_soc import wishbone
-from thirdparty.nmigen_soc.memory import MemoryMap
+from thirdparty.amaranth_soc import wishbone
+from thirdparty.amaranth_soc.memory import MemoryMap
 
 from . import Peripheral
 
@@ -26,7 +26,7 @@ class SRAMPeripheral(Peripheral, Elaboratable):
 
     Attributes
     ----------
-    bus : :class:`nmigen_soc.wishbone.Interface`
+    bus : :class:`amaranth_soc.wishbone.Interface`
         Wishbone bus interface.
     """
     # TODO raise bus.err if read-only and a bus write is attempted.
